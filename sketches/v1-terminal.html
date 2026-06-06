@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="terminal">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CHENG — R&D Director</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --text: #c9d1d9;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --orange: #d2991d;
+    --red: #f85149;
+    --border: #30363d;
+    --font: 'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+  /* Scanline overlay */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    pointer-events: none; z-index: 999;
+  }
+
+  .container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+
+  /* Nav */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    background: rgba(13,17,23,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+  }
+  nav .inner {
+    max-width: 800px; margin: 0 auto; padding: 0.75rem 2rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  nav .logo { color: var(--green); font-weight: 700; font-size: 14px; }
+  nav .logo::before { content: '> '; color: var(--accent); }
+  nav .links { display: flex; gap: 1.5rem; }
+  nav .links a { color: var(--muted); text-decoration: none; font-size: 13px; transition: color 0.2s; }
+  nav .links a:hover { color: var(--accent); }
+  nav .links a::before { content: '# '; color: var(--border); }
+
+  /* Hero */
+  .hero { padding: 8rem 0 4rem; }
+  .hero .prompt { color: var(--green); margin-bottom: 0.5rem; }
+  .hero .prompt .dollar { color: var(--accent); }
+  .hero .prompt .cursor {
+    display: inline-block; width: 10px; height: 18px;
+    background: var(--green); animation: blink 1s step-end infinite; vertical-align: text-bottom;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .hero h1 { font-size: 2.5rem; font-weight: 700; color: #f0f6fc; margin-bottom: 0.5rem; }
+  .hero .role { color: var(--accent); font-size: 1.1rem; margin-bottom: 0.25rem; }
+  .hero .company { color: var(--muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
+  .hero .comment { color: var(--border); font-style: italic; max-width: 520px; }
+  .hero .comment::before { content: '// '; }
+  .divider { color: var(--border); margin: 1.5rem 0; user-select: none; }
+
+  /* Sections */
+  section { margin-bottom: 4rem; }
+  .section-tag { color: var(--orange); font-size: 13px; margin-bottom: 0.75rem; display: block; }
+  .section-tag::before { content: '## '; color: var(--border); }
+  h2 { font-size: 1.4rem; color: #f0f6fc; margin-bottom: 1rem; font-weight: 600; }
+
+  /* About */
+  .about p { color: var(--text); margin-bottom: 0.75rem; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.5rem; }
+  .stat { background: var(--surface); border: 1px solid var(--border); padding: 1rem; text-align: center; border-radius: 4px; }
+  .stat .num { font-size: 1.6rem; font-weight: 700; color: var(--accent); }
+  .stat .label { font-size: 12px; color: var(--muted); margin-top: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* System */
+  .system-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .system-card {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 1.25rem; border-radius: 4px;
+    transition: border-color 0.2s;
+  }
+  .system-card:hover { border-color: var(--accent); }
+  .system-card h3 { font-size: 1rem; color: var(--accent); margin-bottom: 0.5rem; }
+  .system-card h3::before { content: 'fn '; color: var(--orange); font-weight: 400; }
+  .system-card p { color: var(--muted); font-size: 13px; }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 1.5rem; }
+  .timeline::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--border); }
+  .timeline-item { position: relative; margin-bottom: 1.5rem; padding-left: 1.5rem; }
+  .timeline-item::before {
+    content: ''; position: absolute; left: -1.5rem; top: 0.4rem;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--bg);
+  }
+  .timeline-item .date { color: var(--muted); font-size: 12px; }
+  .timeline-item .title { color: #f0f6fc; font-weight: 600; }
+  .timeline-item .detail { color: var(--muted); font-size: 13px; }
+
+  /* Blog */
+  .blog-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .blog-item {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 1rem 1.25rem; border-radius: 4px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .blog-item .title { color: var(--accent); }
+  .blog-item .date { color: var(--muted); font-size: 12px; }
+
+  /* Projects */
+  .project-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .project-card {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 1.25rem; border-radius: 4px;
+  }
+  .project-card h3 { font-size: 1rem; color: #f0f6fc; }
+  .project-card .lang { display: inline-block; font-size: 11px; color: var(--green); margin-top: 0.5rem; }
+  .project-card p { color: var(--muted); font-size: 13px; margin-top: 0.5rem; }
+
+  /* Contact */
+  .contact { text-align: center; }
+  .contact .cmd { color: var(--green); font-size: 1.1rem; margin-bottom: 1rem; }
+  .contact .links { display: flex; justify-content: center; gap: 2rem; }
+  .contact .links a { color: var(--accent); text-decoration: none; }
+  .contact .links a::before { content: '[ '; color: var(--border); }
+  .contact .links a::after { content: ' ]'; color: var(--border); }
+
+  footer { text-align: center; color: var(--border); font-size: 12px; padding: 2rem 0; }
+  footer::before { content: '/* '; }
+  footer::after { content: ' */'; }
+</style>
+</head>
+<body>
+<nav>
+  <div class="inner">
+    <span class="logo">cheng.sh</span>
+    <div class="links">
+      <a href="#about">about</a>
+      <a href="#system">system</a>
+      <a href="#resume">resume</a>
+      <a href="#blog">blog</a>
+      <a href="#projects">projects</a>
+      <a href="#contact">contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="hero">
+    <div class="prompt"><span class="dollar">$</span> whoami <span class="cursor"></span></div>
+    <h1>Cheng</h1>
+    <div class="role">R&D Director</div>
+    <div class="company">Easy View Technology — Hong Kong</div>
+    <p class="comment">Building core platform infrastructure for wealth management technology at scale.</p>
+  </div>
+
+  <div class="divider">────────────────────────────────────────────────────────────────────────────────</div>
+
+  <section id="about">
+    <span class="section-tag">about</span>
+    <h2>/etc/motd</h2>
+    <p>I lead a team of 4 engineers at Easy View, where we built and maintain the core platform that powers the company's wealth management products. Our system handles portfolio analytics, trade reconciliation, and client reporting — serving financial institutions across Asia-Pacific.</p>
+    <p>My work sits at the intersection of systems architecture, fintech, and engineering leadership. I care about building platforms that are correct, fast, and composable — infrastructure that other teams can bet their products on.</p>
+    <div class="stats">
+      <div class="stat"><div class="num">12+</div><div class="label">Years in Tech</div></div>
+      <div class="stat"><div class="num">4</div><div class="label">Team Size</div></div>
+      <div class="stat"><div class="num">50M+</div><div class="label">Daily Tx Processed</div></div>
+    </div>
+  </section>
+
+  <section id="system">
+    <span class="section-tag">system</span>
+    <h2>/opt/easyview/core</h2>
+    <div class="system-grid">
+      <div class="system-card">
+        <h3>buildPortfolioEngine()</h3>
+        <p>Real-time portfolio valuation and risk analytics pipeline. Handles multi-currency, multi-asset-class aggregation with sub-second latency.</p>
+      </div>
+      <div class="system-card">
+        <h3>buildReconciliation()</h3>
+        <p>Automated trade reconciliation engine matching custodian feeds against internal ledgers. 99.97% auto-match rate across 12 custodians.</p>
+      </div>
+      <div class="system-card">
+        <h3>buildReporting()</h3>
+        <p>Client reporting framework generating 10,000+ customized PDFs monthly. Templating engine with regulatory compliance built in.</p>
+      </div>
+      <div class="system-card">
+        <h3>buildDataPipeline()</h3>
+        <p>ETL infrastructure ingesting market data from Bloomberg, Refinitiv, and 5+ regional exchanges. Cleans, normalizes, and serves via internal APIs.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="resume">
+    <span class="section-tag">resume</span>
+    <h2>~/.work_history</h2>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="date">2022 — Present</div>
+        <div class="title">R&D Director · Easy View Technology</div>
+        <div class="detail">Lead platform engineering team. Architected core system serving all product lines. Grew team from 2 to 4.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="date">2019 — 2022</div>
+        <div class="title">Senior Engineer · Easy View Technology</div>
+        <div class="detail">Built reconciliation engine and client reporting system. Migrated legacy monolith to event-driven microservices.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="date">2016 — 2019</div>
+        <div class="title">Software Engineer · FinTech Co.</div>
+        <div class="detail">Full-stack development for trading platform. React frontend, Java backend, real-time market data feeds.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="date">2014 — 2016</div>
+        <div class="title">Junior Developer · Tech Startup</div>
+        <div class="detail">Early-stage product development. Wore many hats — backend, DevOps, data pipelines.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="blog">
+    <span class="section-tag">blog</span>
+    <h2>/var/log/thoughts</h2>
+    <div class="blog-list">
+      <div class="blog-item"><span class="title">Building a Reconciliation Engine That Doesn't Break</span><span class="date">2026-05</span></div>
+      <div class="blog-item"><span class="title">Why Your Platform Team Should Ship Weekly</span><span class="date">2026-03</span></div>
+      <div class="blog-item"><span class="title">Event Sourcing in Fintech: Lessons from 3 Years of Production</span><span class="date">2026-01</span></div>
+      <div class="blog-item"><span class="title">The Case for Monorepos in Small Teams</span><span class="date">2025-10</span></div>
+    </div>
+  </section>
+
+  <section id="projects">
+    <span class="section-tag">projects</span>
+    <h2>~/src/github.com/cheng</h2>
+    <div class="project-grid">
+      <div class="project-card">
+        <h3>ledger-rs</h3><span class="lang">Rust</span>
+        <p>Double-entry ledger engine with sub-millisecond transaction validation. Used as the core of Easy View's reconciliation system.</p>
+      </div>
+      <div class="project-card">
+        <h3>polybot</h3><span class="lang">Python</span>
+        <p>Automated prediction market trading bot. Statistical modeling, real-time pricing, Telegram notifications.</p>
+      </div>
+      <div class="project-card">
+        <h3>vessel</h3><span class="lang">Go</span>
+        <p>Lightweight container runtime for financial computation sandboxes. Isolates untrusted client scripts.</p>
+      </div>
+      <div class="project-card">
+        <h3>hkg-mtr</h3><span class="lang">TypeScript</span>
+        <p>Real-time MTR status dashboard. WebSocket-powered, PWA, HK-centric transit tool.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <span class="section-tag">contact</span>
+    <h2>/dev/tty</h2>
+    <div class="cmd">$ mail -s "hello" cheng@easyview.com.hk</div>
+    <div class="links">
+      <a href="#">github</a>
+      <a href="#">linkedin</a>
+      <a href="#">twitter</a>
+      <a href="#">email</a>
+    </div>
+  </section>
+
+  <footer>end of file</footer>
+</div>
+</body>
+</html>
