@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 與組織變革 — Apple Keynote Style</title>
+<style>
+  :root {
+    --bg: #000;
+    --text: #f5f5f7;
+    --muted: #86868b;
+    --accent: #2997ff;
+    --accent2: #ff375f;
+    --grad: linear-gradient(135deg, #2997ff, #a855f7, #ff375f);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#000; overflow:hidden; font-family: -apple-system, 'Inter', 'Noto Sans TC', 'SF Pro Display', system-ui, sans-serif; }
+
+  #slide-container { position:fixed; inset:0; z-index:2; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+  .slide {
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; padding:6vw;
+  }
+  .slide.active { opacity:1; pointer-events:auto; }
+
+  /* Apple-style builds: each .build element reveals with stagger */
+  .build { opacity:0; transform:translateY(30px); transition: all 0.9s cubic-bezier(0.16,1,0.3,1); }
+  .slide.active .build { opacity:1; transform:translateY(0); }
+  .build.d1 { transition-delay: 0.1s; }
+  .build.d2 { transition-delay: 0.25s; }
+  .build.d3 { transition-delay: 0.4s; }
+  .build.d4 { transition-delay: 0.55s; }
+  .build.d5 { transition-delay: 0.7s; }
+  .build.d6 { transition-delay: 0.85s; }
+  .build.d7 { transition-delay: 1.0s; }
+
+  .slide h1 {
+    font-size: clamp(5.5rem, 12vw, 14rem);
+    font-weight: 700; letter-spacing: -0.04em;
+    line-height: 1.0; text-align: center; color: var(--text);
+    margin-bottom: 0.8rem;
+  }
+  .slide h1 .gr { background: var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .slide h2 {
+    font-size: clamp(4rem, 8vw, 8rem);
+    font-weight: 600; letter-spacing: -0.03em;
+    color: var(--text); text-align: center;
+    line-height: 1.1; margin-bottom: 1rem;
+  }
+  .slide p {
+    font-size: clamp(1.8rem, 2.5vw, 2.4rem);
+    color: var(--muted); text-align: center;
+    max-width: 1000px; line-height: 1.5; font-weight: 400;
+  }
+  .slide .tagline {
+    font-size: clamp(1.5rem, 2vw, 1.8rem);
+    color: var(--accent); text-transform: uppercase;
+    letter-spacing: 0.2em; font-weight: 600; margin-bottom: 2rem;
+  }
+  .slide .big-stat {
+    font-size: clamp(10rem, 20vw, 22rem);
+    font-weight: 700; letter-spacing: -0.05em;
+    background: var(--grad); -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent; line-height:1;
+  }
+  .slide .stat-label {
+    font-size: clamp(1.5rem, 2.2vw, 2rem);
+    color: var(--muted); margin-top: 0.8rem;
+    font-weight: 500; max-width: 350px; text-align: center; line-height:1.4;
+  }
+  .slide .stat-row { display:flex; gap:8rem; margin-top:4rem; flex-wrap:wrap; justify-content:center; }
+
+  .card-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2.5rem; width:100%; max-width:1300px; margin-top:3rem; }
+  .card { background: rgba(255,255,255,0.03); border-radius: 28px; padding: 3rem 2.5rem; text-align: center; backdrop-filter: blur(20px); }
+  .card .num { font-size:4rem; font-weight:700; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:1rem; }
+  .card h3 { font-size:1.8rem; color:var(--text); margin-bottom:0.8rem; font-weight:600; }
+  .card p { font-size:1.3rem; color:var(--muted); line-height:1.5; }
+
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:4rem; max-width:1100px; width:100%; margin-top:3rem; }
+  .col { padding:3rem; border-radius:28px; text-align:center; }
+  .col h3 { font-size:1.8rem; margin-bottom:1rem; }
+
+  .timeline { display:flex; gap:0; margin-top:4rem; width:100%; max-width:1200px; }
+  .t-item { flex:1; text-align:center; padding:2.5rem 1.2rem; position:relative; }
+  .t-item .year { font-size:1.1rem; color:var(--accent); text-transform:uppercase; letter-spacing:0.15em; font-weight:600; }
+  .t-item .tl-num { font-size:3.5rem; font-weight:700; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin:0.8rem 0; }
+  .t-item .tl-label { font-size:1.2rem; color:var(--muted); }
+  .t-item+.t-item { border-left:1px solid rgba(255,255,255,0.08); }
+
+  .stat-col { text-align:center; }
+
+  .pull {
+    font-size: clamp(2.2rem, 3.5vw, 3rem);
+    font-weight: 500; font-style: italic;
+    max-width: 900px; text-align: center; line-height: 1.4;
+    color: var(--text); margin: 2.5rem 0;
+  }
+  .pull .attr { display:block; font-size:1.2rem; color:var(--muted); margin-top:1.2rem; font-style:normal; font-weight:400; }
+
+  .cta { font-size:1.8rem !important; padding:1.5rem 4rem !important; }
+  .col.old { background:rgba(255,255,255,0.02); }
+  .col.new { background:rgba(41,151,255,0.06); }
+
+  /* Backbone diagram */
+  #diagramCanvas { display:block; width:100%; height:100%; cursor:grab; }
+  #diagramCanvas:active { cursor:grabbing; }
+  .zoom-ctrls {
+    position:absolute; bottom:1.5rem; right:1.5rem;
+    display:flex; gap:0.5rem; z-index:5;
+  }
+  .zoom-ctrls button {
+    width:40px; height:40px; border-radius:20px;
+    background:rgba(255,255,255,0.08); border:none;
+    color:var(--text); font-size:1.3rem; cursor:pointer;
+    font-family:inherit; backdrop-filter:blur(10px);
+    transition:background 0.2s;
+  }
+  .zoom-ctrls button:hover { background:rgba(255,255,255,0.15); }
+  .diag-hint { position:absolute; bottom:1.5rem; left:1.5rem; color:var(--muted); font-size:0.85rem; z-index:5; pointer-events:none; }
+
+  #progress { position:fixed; bottom:0; left:0; height:2px; background:var(--grad); z-index:10; transition:width 0.6s cubic-bezier(0.16,1,0.3,1); }
+  #slide-num { position:fixed; top:2rem; right:2rem; z-index:10; color:var(--muted); font-size:1.3rem; font-weight:500; }
+  #nav-hint { position:fixed; bottom:2rem; left:50%; transform:translateX(-50%); z-index:10; color:var(--muted); font-size:1.1rem; display:flex; gap:1rem; align-items:center; }
+
+  @media (max-width:768px) {
+    .card-grid, .two-col { grid-template-columns:1fr; }
+    .stat-row { gap:3rem; }
+    .stat-col .big-stat { font-size:5rem; }
+    .timeline { flex-direction:column; }
+    .t-item+.t-item { border-left:none; border-top:1px solid rgba(255,255,255,0.08); }
+  }
+</style>
+</head>
+<body>
+
+<div id="slide-container">
+
+  <!-- 1 -->
+  <div class="slide active" data-slide="0">
+    <div class="build d1 tagline">The next era of enterprise</div>
+    <h1 class="build d2">AI<br><span class="gr">顛覆</span>組織</h1>
+    <p class="build d3">Artificial Intelligence is rewriting every rule.<br>Every organisation. Every industry. Every leader.</p>
+  </div>
+
+  <!-- 2 -->
+  <div class="slide" data-slide="1">
+    <div class="build d1 tagline">A fundamental shift</div>
+    <h2 class="build d2"><span class="gr">WHAT</span><br>不是 HOW</h2>
+    <p class="build d3">AI 時代最重要的轉變不是你的工具。<br>是你的思維方式。<br>從「如何做」到「做什麼」。</p>
+  </div>
+
+  <!-- 3 -->
+  <div class="slide" data-slide="2">
+    <h2 class="build d1">我們都會迷失</h2>
+    <p class="build d2">明確的目標。然後會議。干擾。流程變成了目的地。</p>
+    <div class="two-col" style="margin-top:2rem">
+      <div class="col old build d3"><h3 style="color:var(--muted);margin-bottom:1rem;font-size:1.2rem">舊思維</h3><p style="color:var(--muted)">SOP → 清單 → 優化流程 → 衡量合規 → <span style="color:var(--accent2)">做錯了事</span></p></div>
+      <div class="col new build d4"><h3 style="color:var(--accent);margin-bottom:1rem;font-size:1.2rem">新思維</h3><p style="color:var(--muted)">目標 → 差距 → 優先 → 消除 → 更新 → <span style="color:var(--accent)">重複</span></p></div>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="slide" data-slide="3">
+    <h2 class="build d1">你告訴 AI 如何做</h2>
+    <h2 class="build d2">等於把天花板<br>壓到 <span class="gr">你的高度</span></h2>
+    <div class="pull build d3">"If you keep telling AI how to do things, you are asking it to think inside a box you built. Let it fly."<span class="attr">Unknown unknowns are the prize.</span></div>
+  </div>
+
+  <!-- 5: Backbone static -->
+  <div class="slide" data-slide="4">
+    <h2 class="build d1">思考<span class="gr">骨幹</span></h2>
+    <p class="build d2">一個迭代框架。設定目標，不是指令。</p>
+    <div class="card-grid">
+      <div class="card build d3"><div class="num">01</div><h3>設定目標</h3><p>Define WHAT. 具體。有野心。AI 能接住。</p></div>
+      <div class="card build d4"><div class="num">02</div><h3>識別差距</h3><p>誠實面對目標與現狀之間的 delta。</p></div>
+      <div class="card build d5"><div class="num">03</div><h3>優先排序</h3><p>哪個 Gap 最重要？順序比速度重要。</p></div>
+      <div class="card build d6"><div class="num">04</div><h3>消除 Gap</h3><p>讓 AI 想 HOW。你專注 WHAT。</p></div>
+      <div class="card build d7"><div class="num">05</div><h3>更新狀態</h3><p>Gap 關閉。狀態改變。回到 Step 1。</p></div>
+    </div>
+  </div>
+
+  <!-- 6: Interactive backbone -->
+  <div class="slide diagram" data-slide="5" id="diagramSlide" style="padding:1vw; justify-content:flex-start">
+    <canvas id="diagramCanvas"></canvas>
+    <div class="zoom-ctrls">
+      <button onclick="zoomIn()">+</button>
+      <button onclick="zoomOut()">−</button>
+      <button onclick="zoomReset()">⌂</button>
+    </div>
+    <div class="diag-hint">🖱 滾輪縮放 · 拖曳平移</div>
+  </div>
+
+  <!-- 7 -->
+  <div class="slide" data-slide="6">
+    <h2 class="build d1"><span class="gr">未知</span>的未知</h2>
+    <p class="build d2">你無法解決你不知道存在的問題。<br>這就是為什麼告訴 AI 「如何做」如此局限。</p>
+    <div class="two-col" style="margin-top:2rem">
+      <div class="col old build d3"><h3 style="color:var(--muted);margin-bottom:0.8rem">限制 AI</h3><p style="color:var(--muted)">"寫一個 Python script，join 這幾個表，輸出 CSV。"<br>你在讓 AI 做一個更快的<em>你</em>。</p></div>
+      <div class="col new build d4"><h3 style="color:var(--accent);margin-bottom:0.8rem">讓 AI 飛</h3><p style="color:var(--muted)">"這是數據。哪些客戶群在衰退？為什麼？"<br>AI 可能發現你從未想過的模式。</p></div>
+    </div>
+  </div>
+
+  <!-- 8: Stats -->
+  <div class="slide" data-slide="7">
+    <div class="stat-row">
+      <div class="stat-col build d1"><div class="big-stat">65%</div><div class="stat-label">Gen AI 採用率<br>2024</div></div>
+      <div class="stat-col build d2"><div class="big-stat">$15.7T</div><div class="stat-label">2030 全球經濟貢獻</div></div>
+      <div class="stat-col build d3"><div class="big-stat">300M</div><div class="stat-label">工作受 Gen AI 影響</div></div>
+    </div>
+    <p class="build d4" style="margin-top:3rem">Goldman Sachs: 三分之二工作可被 AI 部分自動化。<br>不是未來 — 正在發生。</p>
+  </div>
+
+  <!-- 9 -->
+  <div class="slide" data-slide="8">
+    <h2 class="build d1">組織架構正在<span class="gr">崩解</span></h2>
+    <div class="card-grid">
+      <div class="card build d2"><div class="num">📉</div><h3>中層消失</h3><p>WEF: 2027 年前消失 8300 萬職位。管理層級被壓縮。</p></div>
+      <div class="card build d3"><div class="num">⚡</div><h3>決策下沉</h3><p>每人都有 AI insights。速度就是新的階級制度。</p></div>
+      <div class="card build d4"><div class="num">🔄</div><h3>團隊流體化</h3><p>42% 企業已部署 AI。你的對手已經在做了。</p></div>
+    </div>
+  </div>
+
+  <!-- 10 -->
+  <div class="slide" data-slide="9">
+    <h2 class="build d1">不是大魚吃小魚</h2>
+    <h2 class="build d2">是<span class="gr">快魚吃慢魚</span></h2>
+    <div class="two-col" style="margin-top:2rem">
+      <div class="col old build d3"><h3 style="color:var(--muted);margin-bottom:0.8rem">等待觀望</h3><p style="color:var(--muted)">季度報告 · 直覺招聘 · 被動供應鏈 · 數據孤島</p></div>
+      <div class="col new build d4"><h3 style="color:var(--accent);margin-bottom:0.8rem">AI-First</h3><p style="color:var(--muted)">即時儀表板 · 預測招聘 · 自修復供應鏈</p></div>
+    </div>
+    <p class="build d5" style="margin-top:2rem;color:var(--accent2);font-weight:600">McKinsey: AI 採用者利潤增長比同行快 3.5x</p>
+  </div>
+
+  <!-- 11 -->
+  <div class="slide" data-slide="10">
+    <div class="stat-row">
+      <div class="stat-col build d1"><div class="big-stat">44%</div><div class="stat-label">核心技能<br>2027 年前被顛覆</div></div>
+    </div>
+    <p class="build d2" style="margin-top:2rem">AI 不取代人。<span class="gr">取代不懂 AI 的人。</span></p>
+    <p class="build d3" style="color:var(--muted)">WEF · Goldman Sachs · IBM</p>
+  </div>
+
+  <!-- 12 -->
+  <div class="slide" data-slide="11">
+    <h2 class="build d1">不進則<span class="gr">退</span></h2>
+    <div class="timeline">
+      <div class="t-item build d2"><div class="year">2019</div><div class="tl-num">33%</div><div class="tl-label">AI 採用率</div></div>
+      <div class="t-item build d3"><div class="year">2023</div><div class="tl-num">55%</div><div class="tl-label">ChatGPT 引爆</div></div>
+      <div class="t-item build d4"><div class="year" style="font-weight:700">2024</div><div class="tl-num">72%</div><div class="tl-label">Gen AI 達 65%</div></div>
+      <div class="t-item build d5"><div class="year" style="color:var(--accent2);font-weight:700">2025</div><div class="tl-num" style="color:var(--accent2);background:none;-webkit-text-fill-color:var(--accent2)">↯</div><div class="tl-label" style="color:var(--accent2)">轉折點</div></div>
+      <div class="t-item build d6"><div class="year" style="color:var(--accent2);font-weight:700">2027+</div><div class="tl-num" style="color:var(--accent2);background:none;-webkit-text-fill-color:var(--accent2)">✕</div><div class="tl-label" style="color:var(--accent2)">淘汰</div></div>
+    </div>
+    <p class="build d7" style="margin-top:3rem">33% → 72% 只用了一年。<br>你的組織在曲線的哪一邊？</p>
+  </div>
+
+  <!-- 13 -->
+  <div class="slide" data-slide="12">
+    <h1 class="build d1">現在<br><span class="gr">行動</span></h1>
+    <p class="build d2" style="font-size:1.5rem;margin-top:1.5rem">設定目標。識別差距。消除它。重複。</p>
+    <p class="build d3" style="font-size:1.3rem;color:var(--accent);margin-top:2rem;font-weight:600">72% 的對手已經開始。你呢？</p>
+    <p class="build d4" style="font-size:1rem;color:var(--muted);margin-top:1rem">Start now. Not tomorrow. Not next quarter. <span style="color:var(--accent)">Now.</span></p>
+  </div>
+
+</div>
+
+<div id="progress"></div>
+<div id="slide-num">1 / 13</div>
+<div id="nav-hint">
+  <span>← →</span><span style="opacity:0.4">導航</span>
+  <span style="opacity:0.3">點擊翻頁</span>
+</div>
+
+<script>
+const TOTAL = 13; let current = 0;
+function go(n) {
+  if (n < 0 || n >= TOTAL) return;
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  var el = document.querySelector('[data-slide="' + n + '"]');
+  if (el) el.classList.add('active');
+  current = n;
+  document.getElementById('progress').style.width = ((n+1)/TOTAL * 100) + '%';
+  document.getElementById('slide-num').textContent = (n+1) + ' / ' + TOTAL;
+  if (n === 5) setTimeout(initDiagram, 200);
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); go(current+1); }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); go(current-1); }
+  if (e.key === 'Home') { e.preventDefault(); go(0); }
+  if (e.key === 'End') { e.preventDefault(); go(TOTAL-1); }
+});
+document.addEventListener('click', e => {
+  if (e.target.closest('.zoom-ctrls') || e.target.closest('canvas')) return;
+  e.clientX > window.innerWidth/2 ? go(current+1) : go(current-1);
+});
+var tsx = 0;
+document.addEventListener('touchstart', e => { tsx = e.touches[0].clientX; });
+document.addEventListener('touchend', e => {
+  var dx = e.changedTouches[0].clientX - tsx;
+  if (dx < -50) go(current+1); if (dx > 50) go(current-1);
+});
+
+// --- Interactive Backbone Diagram ---
+var dgCtx, dgCanvas, dgW, dgH;
+var dgZoom = 1, dgPanX = 0, dgPanY = 0;
+var dgDragging = false, dgDragX, dgDragY;
+var dgInit = false, dgAnim = 0;
+
+function initDiagram() {
+  if (dgInit) return;
+  dgCanvas = document.getElementById('diagramCanvas');
+  if (!dgCanvas) return;
+  dgCtx = dgCanvas.getContext('2d');
+  resizeDiagram();
+  dgInit = true; dgAnim = 0;
+  requestAnimationFrame(drawDiagram);
+}
+function resizeDiagram() {
+  var slide = document.getElementById('diagramSlide');
+  if (!slide || !dgCanvas) return;
+  dgCanvas.width = slide.clientWidth;
+  dgCanvas.height = slide.clientHeight;
+  dgW = dgCanvas.width; dgH = dgCanvas.height;
+}
+function drawDiagram(ts) {
+  if (!dgInit || !dgCanvas) { requestAnimationFrame(drawDiagram); return; }
+  dgAnim = ts * 0.001;
+  var ctx = dgCtx, w = dgW, h = dgH;
+  ctx.clearRect(0, 0, w, h);
+  ctx.save();
+  ctx.translate(w/2 + dgPanX, h/2 + dgPanY);
+  ctx.scale(dgZoom, dgZoom);
+
+  var R = Math.min(w, h) * 0.28, cx = 0, cy = 0;
+
+  // Glow
+  for (var ring = 0; ring < 3; ring++) {
+    var rr = R + ring * 32;
+    ctx.beginPath(); ctx.arc(cx, cy, rr, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(41,151,255,' + (0.04 - ring*0.01) + ')';
+    ctx.lineWidth = 1; ctx.setLineDash([4,15]); ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  var nodes = [
+    {label:'設定目標', sub:'WHAT', c:'#2997ff'},
+    {label:'識別差距', sub:'GAP', c:'#ff375f'},
+    {label:'優先排序', sub:'PRIORITIZE', c:'#ff9f0a'},
+    {label:'消除 Gap', sub:'CLOSE', c:'#30d158'},
+    {label:'更新狀態', sub:'UPDATE', c:'#a855f7'},
+  ];
+  var N = nodes.length, nodeR = R * 0.22, pos = [];
+
+  // Spiral arms
+  for (var lvl = 0; lvl < 2; lvl++) {
+    var sr = R + lvl * 45, sa = lvl * Math.PI*0.15 + dgAnim*0.3;
+    ctx.beginPath();
+    for (var a = 0; a < Math.PI*2.3; a += 0.05) {
+      var sx = cx + Math.cos(sa+a)*(sr+a*15), sy = cy + Math.sin(sa+a)*(sr+a*15);
+      a===0 ? ctx.moveTo(sx,sy) : ctx.lineTo(sx,sy);
+    }
+    ctx.strokeStyle = 'rgba(168,85,247,' + (0.1 - lvl*0.04) + ')';
+    ctx.lineWidth = 1.5 - lvl*0.5; ctx.stroke();
+  }
+
+  for (var i = 0; i < N; i++) {
+    var j = (i+1)%N;
+    var ax = cx + Math.cos((i/N)*Math.PI*2 - Math.PI/2) * R;
+    var ay = cy + Math.sin((i/N)*Math.PI*2 - Math.PI/2) * R;
+    var bx = cx + Math.cos((j/N)*Math.PI*2 - Math.PI/2) * R;
+    var by = cy + Math.sin((j/N)*Math.PI*2 - Math.PI/2) * R;
+    pos.push({x:ax, y:ay});
+    var angle = Math.atan2(by-ay, bx-ax);
+    var shrink = nodeR + 10;
+    var sx = ax + Math.cos(angle)*shrink, sy = ay + Math.sin(angle)*shrink;
+    var ex = bx - Math.cos(angle)*shrink, ey = by - Math.sin(angle)*shrink;
+    ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(ex,ey);
+    ctx.strokeStyle = 'rgba(255,255,255,' + (0.18 + Math.sin(dgAnim*3+i)*0.05) + ')';
+    ctx.lineWidth = 1.5; ctx.stroke();
+    var hl = 12;
+    ctx.beginPath(); ctx.moveTo(ex,ey);
+    ctx.lineTo(ex-hl*Math.cos(angle-0.4), ey-hl*Math.sin(angle-0.4));
+    ctx.lineTo(ex-hl*Math.cos(angle+0.4), ey-hl*Math.sin(angle+0.4));
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(168,85,247,0.6)'; ctx.fill();
+  }
+
+  for (var i = 0; i < N; i++) {
+    var p = pos[i], n = nodes[i], r = nodeR;
+    var glow = ctx.createRadialGradient(p.x,p.y,r*0.5,p.x,p.y,r*1.5);
+    glow.addColorStop(0, n.c+'30'); glow.addColorStop(1, 'transparent');
+    ctx.beginPath(); ctx.arc(p.x,p.y,r*1.5,0,Math.PI*2); ctx.fillStyle = glow; ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
+    ctx.fillStyle = n.c+'12'; ctx.fill();
+    ctx.strokeStyle = n.c+'60'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = n.c;
+    ctx.font = 'bold '+(r*0.55)+'px -apple-system, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText((i+1).toString().padStart(2,'0'), p.x, p.y - r*0.2);
+    ctx.fillStyle = '#f5f5f7';
+    ctx.font = (r*0.38)+'px -apple-system, sans-serif';
+    ctx.fillText(n.label, p.x, p.y + r*0.35);
+    ctx.fillStyle = n.c;
+    ctx.font = (r*0.2)+'px -apple-system, sans-serif';
+    ctx.fillText(n.sub, p.x, p.y + r*0.65);
+  }
+  ctx.fillStyle = '#f5f5f7';
+  ctx.font = 'bold '+(nodeR*0.45)+'px -apple-system, sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('迭代循環', cx, cy - nodeR*0.1);
+  ctx.fillStyle = 'rgba(168,85,247,0.8)';
+  ctx.font = (nodeR*0.28)+'px -apple-system, sans-serif';
+  ctx.fillText('Recursive Loop', cx, cy + nodeR*0.28);
+
+  ctx.restore();
+  requestAnimationFrame(drawDiagram);
+}
+
+dgCanvas && dgCanvas.addEventListener('wheel', function(e) {
+  e.preventDefault();
+  dgZoom = Math.max(0.3, Math.min(4, dgZoom * (e.deltaY > 0 ? 0.9 : 1.1)));
+});
+dgCanvas && dgCanvas.addEventListener('mousedown', function(e) {
+  dgDragging = true; dgDragX = e.clientX - dgPanX; dgDragY = e.clientY - dgPanY;
+});
+window.addEventListener('mousemove', function(e) {
+  if (!dgDragging) return;
+  dgPanX = e.clientX - dgDragX; dgPanY = e.clientY - dgDragY;
+});
+window.addEventListener('mouseup', function() { dgDragging = false; });
+window.addEventListener('resize', function() { if (dgInit) resizeDiagram(); });
+function zoomIn()  { dgZoom = Math.min(4, dgZoom * 1.3); }
+function zoomOut() { dgZoom = Math.max(0.3, dgZoom * 0.77); }
+function zoomReset() { dgZoom = 1; dgPanX = 0; dgPanY = 0; }
+</script>
+</body>
+</html>
